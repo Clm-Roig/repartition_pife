@@ -126,6 +126,28 @@ class combinaisonT(Thread):
         toPrint = "Thread %d Fini NbThread fini : %d/%d" % (self.id, tFini,nbThread)
         Printer(toPrint)
 
+class combinaisonT2(Thread):
+
+    def __init__(self,nbEleves, id, k,group,ranges,repartition,i,result):
+        Thread.__init__(self)
+        self.id = id
+        self.k = k
+        self.group = group
+        self.ranges = ranges
+        self.repartition = repartition
+        self.i = i
+        self.trinomes = trinomes
+        self.result = result
+        self.nbEleves = nbEleves
+
+    def run(self):
+        global tFini
+        global nbThread
+        tmp = combinaison(self.k,self.group,self.ranges,self.repartition,self.i,self.result)
+        tFini = tFini + 1
+        toPrint = "Thread %d Fini NbThread fini : %d/%d" % (self.id, tFini,nbThread)
+        Printer(toPrint)
+
 def matriceAleatoire(size):
     matrice = np.random.rand(size,size)
     for x in xrange(0,np.shape(matrice)[0]):
@@ -233,10 +255,13 @@ def combinaisonBis(nbEleves,k,group,ranges,repartition,i,trinomes,result):
         if not(sontBloquants(repartition,group[x])):
             repartition.append(group[x])
             if i == k - 1:
-                for t in trinomes:
-                    if checkRepartition((t+repartition),nbEleves):
-                        #print "Repartition trouvé !"
-                        result.append(repartition + t)
+                if len(trinomes) != 0:
+                    for t in trinomes:
+                        if checkRepartition((t+repartition),nbEleves):
+                            #print "Repartition trouvé !"
+                            result.append(repartition + t)
+                else:
+                    result.append(repartition)
             else:
                 combinaisonBis(nbEleves,k,group,[x+1 , i+1 + len(group) - k],repartition,i+1,trinomes,result)
             if len(repartition) != 0:
@@ -312,7 +337,10 @@ if nbEleve > 35:
 else:
     if not(nbEleve % 2 == 0):
         nbTrinomeNeeded = 1
-    nbBinomesNeeded = (nbEleve - 3) / 2
+        nbBinomesNeeded = (nbEleve - 3) / 2
+    else:
+        nbBinomesNeeded = nbEleve / 2
+    
 
 tFini = 0
 binomes = []
@@ -349,16 +377,34 @@ while not(end) and not(repartTrouvee):
         #print "____________________"
         #print sortListGroupByOccEleves(trinomes,listOccurencesElevesTrinomes,nbEleve)
         if nbTrinomeNeeded == 0:
-            print "NB d'occurences de chaque eleve dans les binomes retenus : ", listOccurencesElevesBinomes
+            print "Nb d'occurrences de chaque eleve dans les binomes retenus : ", listOccurencesElevesBinomes
+            
+            listIndexes = []
+            for x in xrange(0,nbEleve):
+                listIndexes.append(x)
+
+            sortedElevesByOcc = [x for _,x in sorted(zip(listOccurencesElevesBinomes,listIndexes))]
+
+            print "Sorted eleves by occ : ", sortedElevesByOcc
+
+            binomesCritiques = []
+
+            for binome in binomes:
+                for eleveDuBin in binome:
+                    if eleveDuBin == sortedElevesByOcc[0]:
+                        binomesCritiques.append(binome)
+
+            print "Binomes critique : " , binomesCritiques
+
             repartitionTrinomes = []
 
             temps = time.time()
             #combinaisonBis(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionTrinomes,repartitionTotal)
             t = []
-            for x in range(0,(len(binomes)-nbBinomesNeeded+1)):
-                for y in range(x+1,(len(binomes)-nbBinomesNeeded+2)):
+            for binomesCritique in binomesCritiques:
+                for x in range(0,(len(binomes)-nbBinomesNeeded+1)):
                     nbThread = nbThread + 1
-                    tmp = combinaisonT(nbEleve,nbThread-1,nbBinomesNeeded,binomes,[y,y],[binomes[x]],1,repartitionTrinomes,repartitionTotal)
+                    tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,binomes,[x,x],[binomesCritique],1,repartitionTotal)
                     t.append(tmp)
                     tmp.start()
 
@@ -370,12 +416,15 @@ while not(end) and not(repartTrouvee):
             #print "\n",len(repartitionTotal)," répartition trouvé pour les trinomes et binomes en : ",temps
             toPrint = "%d répartition(s) trouvée(s) pour les binomes en : %fs\n" % (len(repartitionTotal),temps)
             Printer(toPrint)
+            print repartitionTotal
             if len(repartitionTotal) > 0:
                 repartTrouvee = True
 
 
         else:
             trinomes = getAvailableTrinomes(binomes,listOccurencesElevesTrinomes)
+
+
 
             if len(trinomes) >= nbTrinomeNeeded:
                 print "Nombre de trinomes retenu : ",len(trinomes)
