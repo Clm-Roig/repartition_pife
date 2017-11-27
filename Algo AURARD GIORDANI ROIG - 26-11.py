@@ -232,18 +232,6 @@ def combinaison(k,group,ranges,repartition,i,result):
                 repartition.pop()
     return True
 
-def threadedSearch(k,group):
-    t = []
-    result = []
-    for x in range(0,(len(group)-k+1)):
-        tmp = combinaisonT(x,k,group,[x,x],[],0,result)
-        t.append(tmp)
-        tmp.start()
-
-    for value in t:
-        value.join()
-    return result
-
 def combinaisonBis(nbEleves,k,group,ranges,repartition,i,trinomes,result):
     for x in range(ranges[0],ranges[1]+1):
         if not(sontBloquants(repartition,group[x])):
@@ -262,12 +250,37 @@ def combinaisonBis(nbEleves,k,group,ranges,repartition,i,trinomes,result):
                 repartition.pop()
     return True
 
+def threadedSearch(k,group):
+    t = []
+    result = []
+    for x in range(0,(len(group)-k+1)):
+        tmp = combinaisonT(x,k,group,[x,x],[],0,result)
+        t.append(tmp)
+        tmp.start()
+
+    for value in t:
+        value.join()
+    return result
+
 def extractGroupWith(group,eleve):
     res = []
     for value in group:
         for x in value:
             if x == eleve:
                 res.append(value)
+    return res
+
+def deleteElevesFromGroups(groups,repartition):
+    res = list(groups)
+    for group in repartition:
+        for eleve in group:
+            for grou in groups:
+                for ele in grou:
+                    if ele == eleve:
+                        try:
+                            res.remove(grou)
+                        except ValueError:
+                            i = 1
     return res
 
 def sortListGroupByOccEleves(group,listOccurencesEleves,nbEleve):
@@ -352,7 +365,7 @@ else:
         nbBinomesNeeded = (nbEleve - 3) / 2
     else:
         nbBinomesNeeded = nbEleve / 2
-    
+
 
 print 'Matrice des préférences :'
 for i in range(nbEleve):
@@ -381,7 +394,7 @@ while not(end) and not(repartTrouvee):
         #print sortListGroupByOccEleves(trinomes,listOccurencesElevesTrinomes,nbEleve)
         if nbTrinomeNeeded == 0:
             print "Nb d'occurrences de chaque eleve dans les binomes retenus : ", listOccurencesElevesBinomes
-            
+
             listIndexes = []
             for x in xrange(0,nbEleve):
                 listIndexes.append(x)
@@ -405,11 +418,13 @@ while not(end) and not(repartTrouvee):
             #combinaisonBis(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionTrinomes,repartitionTotal)
             t = []
             for binomesCritique in binomesCritiques:
-                for x in range(0,(len(binomes)-nbBinomesNeeded+1)):
-                    nbThread = nbThread + 1
-                    tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,binomes,[x,x],[binomesCritique],1,repartitionTotal)
-                    t.append(tmp)
-                    tmp.start()
+                validBinomes = deleteElevesFromGroups(binomes,[binomesCritique])
+                if validBinomes >= nbBinomesNeeded:
+                    for x in range(0,(len(validBinomes)-nbBinomesNeeded+1)):
+                        nbThread = nbThread + 1
+                        tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,validBinomes,[x,x],[binomesCritique],1,repartitionTotal)
+                        t.append(tmp)
+                        tmp.start()
 
             for value in t:
                 value.join()
@@ -419,15 +434,144 @@ while not(end) and not(repartTrouvee):
             #print "\n",len(repartitionTotal)," répartition trouvé pour les trinomes et binomes en : ",temps
             toPrint = "%d répartition(s) trouvée(s) pour les binomes en : %fs\n" % (len(repartitionTotal),temps)
             Printer(toPrint)
-            print repartitionTotal
+
             if len(repartitionTotal) > 0:
                 repartTrouvee = True
 
         else:
             trinomes = getAvailableTrinomes(binomes,listOccurencesElevesTrinomes)
 
+            listIndexes = []
+            for x in xrange(0,nbEleve):
+                listIndexes.append(x)
+
+            try:
+                indexesCriticalTrinomes = [i for i, x in enumerate(listOccurencesElevesTrinomes) if x == 0]
+            except IndexError:
+                print "Pas de d'eleves manquant trinomes"
+
+            mostCriticalEleves = indexesCriticalTrinomes[0]
+
+            for indexe in indexesCriticalTrinomes:
+                if listOccurencesElevesBinomes[indexe] < listOccurencesElevesBinomes[mostCriticalEleves]:
+                    mostCriticalEleves = indexe
+
+            print "Most critical eleves : ", mostCriticalEleves
+
+            binomesCritiques = []
+
+            for binome in binomes:
+                for eleveDuBin in binome:
+                    if eleveDuBin == mostCriticalEleves:
+                        binomesCritiques.append(binome)
+
+            print "Les binomes critiques : ", binomesCritiques
+
+            repartitionBinomes = []
+
+            temps = time.time()
+            #combinaisonBis(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionTrinomes,repartitionTotal)
+            t = []
+            for binomesCritique in binomesCritiques:
+                validBinomes = deleteElevesFromGroups(binomes,[binomesCritique])
+                if validBinomes >= nbBinomesNeeded:
+                    if nbBinomesNeeded != 1:
+                        for x in range(0,(len(validBinomes)-nbBinomesNeeded+1)):
+                            nbThread = nbThread + 1
+                            tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,validBinomes,[x,x],[binomesCritique],1,repartitionBinomes)
+                            t.append(tmp)
+                            tmp.start()
+
+            for value in t:
+                value.join()
+
+            temps = time.time() - temps
+
+            toPrint = ("%d repartition de binomes trouvé ! " % (len(repartitionBinomes)))
+            Printer(toPrint)
+            """
+            for repartition in repartitionBinomes:
+                print repartition
+            """
+
+            if len(repartitionBinomes) != 0:
+                repartitionTotal = []
+                if nbTrinomeNeeded == 1:
+                    print "A faire : ", len(repartitionBinomes)
+                    for ind in range(0,len(repartitionBinomes)):
+                        repartition = repartitionBinomes[ind]
+                        #toPrint = ("Restant : %d/%d" % (ind,len(repartitionBinomes)))
+                        #Printer(toPrint)
+                        validTrinomes = deleteElevesFromGroups(trinomes,repartition)
+                        if len(validTrinomes) >= nbTrinomeNeeded:
+                            for trinome in validTrinomes:
+                                if not(sontBloquants(repartition,trinome)):
+                                    repartitionTotal.append(repartition+[trinome])
+                else:
+                    t = []
+                    validTrinomes = deleteElevesFromGroups(trinomes,repartition)
+                    if len(validTrinomes) >= nbTrinomeNeeded:
+                        for x in range(0,(len(validTrinomes)-nbTrinomeNeeded+1)):
+                            nbThread = nbThread + 1
+                            tmp = combinaisonT(nbEleve,nbThread-1,nbTrinomeNeeded,validTrinomes,[x,x],[],1,repartitionBinomes,repartitionTotal)
+                            t.append(tmp)
+                            tmp.start()
+
+                    for value in t:
+                        value.join()
+
+                if len(repartitionTotal) != 0:
+                    repartTrouvee = True
+                    for reparti in repartitionTotal:
+                        print "\nRepartition possible : ", reparti
+
+    else:
+        print "Il manque un élève !"
+    level += 1
+    if level == len(mentionsClassee):
+        end = True
+    if not(repartTrouvee):
+        print "Pas de repartition trouvée !"
+    else:
+        end = True
+
+    # end while
+print("------------------------------------------------")
+if(repartTrouvee):
+    # On cherche désormais la meilleure répartition parmi celles possibles
+    # Méthode : assigner une valeur à chaque mentionsClassee et les additionner
+    meilleuresReparts = []
+    valeurMeilleureRepart = 0
+    for repart in repartitionTotal:
+        valeurRepart = 0
+        for groupe in repart:
+            # Binome
+            if(len(groupe) == 2):
+                valeurRepart = matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
+            # Trinome
+            else:
+                valeurRepart = matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
+                valeurRepart += matrice[groupe[0]][groupe[2]] + matrice[groupe[2]][groupe[0]]
+                valeurRepart += matrice[groupe[1]][groupe[2]] + matrice[groupe[2]][groupe[1]]
+
+        print repart,
+        print "= %d points" %valeurRepart
+
+        if valeurRepart > valeurMeilleureRepart:
+            valeurMeilleureRepart = valeurRepart
+            meilleuresReparts = []
+            meilleuresReparts.append(repart)
+        elif valeurRepart == valeurMeilleureRepart:
+            meilleuresReparts.append(repart)
+
+    print
+    print("La / les meilleure(s) répartition(s) (avec %d points) est / sont :" % valeurMeilleureRepart)
+    for repart in meilleuresReparts:
+        print repart
 
 
+
+"""
             if len(trinomes) >= nbTrinomeNeeded:
                 print "Nombre de trinomes retenu : ",len(trinomes)
 
@@ -500,49 +644,8 @@ while not(end) and not(repartTrouvee):
                         Printer(toPrint)
                         if len(repartitionTotal) > 0:
                             repartTrouvee = True
-
                     else:
                         print "Aucune repartition de trinomes trouvée !"
             else:
                 print "Pas assez de trinomes retenus."
-    else:
-        print "Il manque un élève !"
-    level += 1
-    if level == len(mentionsClassee):
-        end = True
-    if not(repartTrouvee):
-        print "Pas de repartition trouvée !"
-
-    # end while
-print("------------------------------------------------")
-if(repartTrouvee):
-    # On cherche désormais la meilleure répartition parmi celles possibles
-    # Méthode : assigner une valeur à chaque mentionsClassee et les additionner
-    meilleuresReparts = []
-    valeurMeilleureRepart = 0
-    for repart in repartitionTotal:
-        valeurRepart = 0
-        for groupe in repart:
-            # Binome
-            if(len(groupe) == 2):
-                valeurRepart = matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
-            # Trinome
-            else:
-                valeurRepart = matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
-                valeurRepart += matrice[groupe[0]][groupe[2]] + matrice[groupe[2]][groupe[0]]
-                valeurRepart += matrice[groupe[1]][groupe[2]] + matrice[groupe[2]][groupe[1]]
-
-        print repart,
-        print "= %d points" %valeurRepart
-
-        if valeurRepart > valeurMeilleureRepart:
-            valeurMeilleureRepart = valeurRepart
-            meilleuresReparts = []
-            meilleuresReparts.append(repart)
-        elif valeurRepart == valeurMeilleureRepart:
-            meilleuresReparts.append(repart)
-
-    print
-    print("La / les meilleure(s) répartition(s) (avec %d points) est / sont :" % valeurMeilleureRepart)
-    for repart in meilleuresReparts:
-        print repart
+"""
