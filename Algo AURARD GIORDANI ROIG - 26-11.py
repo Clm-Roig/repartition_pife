@@ -13,12 +13,6 @@ global repartition
 global tFini
 global nbThread
 
-nbThread = 0
-tFini = 0
-stopPrinter = False
-repartition = []
-
-
 '''
     File = String pointant sur le fichier csv de la forme :
         -1,B,AB
@@ -311,6 +305,11 @@ def combin(n, k):
         i += 1
     return x
 
+
+''' ------------------------------------------ '''
+''' --------------- DEBUT ALGO --------------- '''
+''' ------------------------------------------ '''
+
 listeEleves = []
 try:
     res = parseCSV(sys.argv[1])
@@ -325,12 +324,25 @@ except IndexError:
     for x in range(0,nbEleve):
         listeEleves.append(x)
 
+# Variables utilisées
 listOccurencesElevesBinomes = [0]*nbEleve
 listOccurencesElevesTrinomes = [0]*nbEleve
-
+tFini = 0
+binomes = []
+trinomes = []
+repartitionTotal = []
+nbThread = 0
+tFini = 0
+stopPrinter = False
+repartition = []
+mentionsClassee = [[5,5],[5,4],[4,4],[5,3],[4,3],[3,3],[5,2]]
+level = 0
+end = False
+repartTrouvee = False
 nbBinomesNeeded = 0
 nbTrinomeNeeded = 0
 
+# Détermination nb binomes et nb trinomes
 if nbEleve > 35:
     nbTrinomeNeeded = nbEleve - 36
     nbBinomesNeeded = 54 - nbEleve
@@ -342,16 +354,6 @@ else:
         nbBinomesNeeded = nbEleve / 2
     
 
-tFini = 0
-binomes = []
-trinomes = []
-repartitionTotal = []
-
-mentionsClassee = [[5,5],[5,4],[4,4],[5,3],[4,3],[3,3],[5,2]]
-level = 0
-end = False
-repartTrouvee = False
-
 print 'Matrice des préférences :'
 for i in range(nbEleve):
     for j in range(nbEleve):
@@ -362,14 +364,15 @@ for i in range(nbEleve):
             print '  ',
     print
 
+print "Nombre de binomes recherché : ",nbBinomesNeeded
+print "Nombre de trinomes recherché : ",nbTrinomeNeeded,"\n"
+
 while not(end) and not(repartTrouvee):
 
     ajoutBinome(mentionsClassee[level][0],mentionsClassee[level][1],matrice,binomes,listOccurencesElevesBinomes)
 
     print "________________________________________________\n"
     print "Seuil de mentions courant : ", level
-    print "Nombre de binomes recherché : ",nbBinomesNeeded
-    print "Nombre de trinomes recherché : ",nbTrinomeNeeded,"\n"
     print "Nombre de binomes retenu : ",len(binomes)
 
     if checkRepartition(binomes,nbEleve):
@@ -420,7 +423,6 @@ while not(end) and not(repartTrouvee):
             if len(repartitionTotal) > 0:
                 repartTrouvee = True
 
-
         else:
             trinomes = getAvailableTrinomes(binomes,listOccurencesElevesTrinomes)
 
@@ -443,10 +445,9 @@ while not(end) and not(repartTrouvee):
                     combinaison(nbTrinomeNeeded,trinomes,[0,len(trinomes) - nbTrinomeNeeded],[],0,repartitionTrinomes)
                     temps = time.time() - temps
 
-                    print "\n",len(repartitionTrinomes),"répartition(s) trouvée(s) pour les trinomes en : ",temps
+                    print "\n",len(repartitionTrinomes),"répartition(s) trouvée(s) pour les trinomes en : %fs" % temps
 
                     if len(repartitionTrinomes) > 0:
-                        repartitionTotal = []
                         temps = time.time()
                         #combinaisonBis(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionTrinomes,repartitionTotal)
                         t = []
@@ -479,7 +480,6 @@ while not(end) and not(repartTrouvee):
                     print "\n",len(repartitionBinomes)," répartition(s) trouvée(s) pour les binomes en : ",temps,'s'
 
                     if len(repartitionBinomes) > 0:
-                        repartitionTotal = []
                         temps = time.time()
                         #combinaisonBis(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionTrinomes,repartitionTotal)
                         t = []
@@ -514,7 +514,7 @@ while not(end) and not(repartTrouvee):
         print "Pas de repartition trouvée !"
 
     # end while
-
+print("------------------------------------------------")
 if(repartTrouvee):
     # On cherche désormais la meilleure répartition parmi celles possibles
     # Méthode : assigner une valeur à chaque mentionsClassee et les additionner
@@ -542,7 +542,7 @@ if(repartTrouvee):
         elif valeurRepart == valeurMeilleureRepart:
             meilleuresReparts.append(repart)
 
-    print("------------------------------------------------")
+    print
     print("La / les meilleure(s) répartition(s) (avec %d points) est / sont :" % valeurMeilleureRepart)
     for repart in meilleuresReparts:
         print repart
