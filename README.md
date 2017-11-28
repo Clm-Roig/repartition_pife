@@ -6,6 +6,7 @@
 Pour exécuter ce programme, 2 possibilités s'offre à vous : 
 
 > python algo.py
+
 Dans ce cas-là, le programme vous demandera de saisir un nombre d'élèves et génèrera une matrice de préférences aléatoire. 
 
 > python algo.py fichier.csv
