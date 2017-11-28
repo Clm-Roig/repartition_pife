@@ -222,15 +222,15 @@ def getAvailableTrinomes(binomes,nbOccurences):
                   nbOccurences[tmp[2]] += 1
     return res
 
-def combinaison(k,group,ranges,repartition,i,result):
+def combinaison(nbEleves,group,ranges,repartition,i,result):
     for x in range(ranges[0],ranges[1]+1):
         temp = sontBloquants(repartition,group[x])
         if not(temp):
             repartition.append(group[x])
-            if i == k - 1:
+            if i == nbEleves - 1:
                 result.append(list(repartition))
             else:
-                combinaison(k,group,[x+1 , i+1 + len(group) - k],repartition,i+1,result)
+                combinaison(nbEleves,group,[x+1 , i+1 + len(group) - nbEleves],repartition,i+1,result)
             if len(repartition) != 0:
                 repartition.pop()
     return True
