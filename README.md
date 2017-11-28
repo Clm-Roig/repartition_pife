@@ -13,10 +13,10 @@ Dans ce cas-là, le programme vous demandera de saisir un nombre d'élèves et g
 
 L'algorithme sera appliqué sur le fichier .csv. Celui-ci doit avoir la forme suivante : 
 
-  Nom,x,y,z
-  x,-1,B,AB
-  y,P,-1,TB
-  z,B,AB,-1
+> Nom,x,y,z
+> x,-1,B,AB
+> y,P,-1,TB
+> z,B,AB,-1
 
 Avec :
 * x,y,z le nom des élèves.
