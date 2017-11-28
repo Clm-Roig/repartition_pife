@@ -21,6 +21,8 @@ y,P,-1,TB
 
 z,B,AB,-1
 
+Exemple : ici, y évalue x à P (Passable) et x évalue y à B (Bien).
+
 Avec :
 * x,y,z le nom des élèves.
 * TB,B,AB,P,I,AR les mentions entre élèves.
