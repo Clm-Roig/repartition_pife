@@ -222,6 +222,14 @@ def getAvailableTrinomes(binomes,nbOccurences):
                   nbOccurences[tmp[2]] += 1
     return res
 
+'''
+    nbEleves : nombre d'élèves considérés dans le group
+    group : 
+    ranges :
+    repartition :
+    i :
+    result : le tableau dans lequel on veut stocker le résultat de la fonction ?
+'''
 def combinaison(nbEleves,group,ranges,repartition,i,result):
     for x in range(ranges[0],ranges[1]+1):
         temp = sontBloquants(repartition,group[x])
