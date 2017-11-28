@@ -117,7 +117,7 @@ class combinaisonT(Thread):
         global nbThread
         tmp = combinaisonBis(self.nbEleves,self.k,self.group,self.ranges,self.repartition,self.i,self.trinomes,self.result)
         tFini = tFini + 1
-        toPrint = "Thread %d Fini NbThread fini : %d/%d" % (self.id, tFini,nbThread)
+        toPrint = "Thread n°%d fini. Nb Threads finis : %d/%d" % (self.id, tFini,nbThread)
         Printer(toPrint)
 
 class combinaisonT2(Thread):
@@ -393,7 +393,7 @@ while not(end) and not(repartTrouvee):
         #print "____________________"
         #print sortListGroupByOccEleves(trinomes,listOccurencesElevesTrinomes,nbEleve)
         if nbTrinomeNeeded == 0:
-            print "Nb d'occurrences de chaque eleve dans les binomes retenus : ", listOccurencesElevesBinomes
+            print "Nb d'occurrences de chaque élève dans les binomes retenus : ", listOccurencesElevesBinomes
 
             listIndexes = []
             for x in xrange(0,nbEleve):
@@ -401,7 +401,7 @@ while not(end) and not(repartTrouvee):
 
             sortedElevesByOcc = [x for _,x in sorted(zip(listOccurencesElevesBinomes,listIndexes))]
 
-            print "Sorted eleves by occ : ", sortedElevesByOcc
+            print "Elèves triés par nb d'occurrences : ", sortedElevesByOcc
 
             binomesCritiques = []
 
@@ -410,7 +410,7 @@ while not(end) and not(repartTrouvee):
                     if eleveDuBin == sortedElevesByOcc[0]:
                         binomesCritiques.append(binome)
 
-            print "Binomes critique : " , binomesCritiques
+            print "Binome(s) critique(s) : " , binomesCritiques
 
             repartitionTrinomes = []
 
