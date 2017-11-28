@@ -139,7 +139,7 @@ class combinaisonT2(Thread):
         global nbThread
         tmp = combinaison(self.k,self.group,self.ranges,self.repartition,self.i,self.result)
         tFini = tFini + 1
-        toPrint = "Thread %d Fini NbThread fini : %d/%d" % (self.id, tFini,nbThread)
+        toPrint = "Thread n°%d fini. Nb de Threads finis : %d/%d" % (self.id, tFini,nbThread)
         Printer(toPrint)
 
 def matriceAleatoire(size):
@@ -161,9 +161,12 @@ def sontBloquants(group1,group2):
                     return True
     return False
 
-def checkRepartition(repartition, nbEleve):
+'''
+    Vérifie si tous les élèves sont présents dans une liste de binômes.
+'''
+def checkRepartitionPossible(binomes, nbEleve):
     tmp = []
-    for group in repartition:
+    for group in binomes:
         for eleve in group:
             if eleve not in tmp:
                 tmp.append(eleve)
@@ -239,7 +242,7 @@ def combinaisonBis(nbEleves,k,group,ranges,repartition,i,trinomes,result):
             if i == k - 1:
                 if len(trinomes) != 0:
                     for t in trinomes:
-                        if checkRepartition((t+repartition),nbEleves):
+                        if checkRepartitionPossible((t+repartition),nbEleves):
                             #print "Repartition trouvé !"
                             result.append(repartition + t)
                 else:
@@ -269,6 +272,7 @@ def extractGroupWith(group,eleve):
             if x == eleve:
                 res.append(value)
     return res
+
 
 def deleteElevesFromGroups(groups,repartition):
     res = list(groups)
@@ -324,12 +328,14 @@ def combin(n, k):
 ''' ------------------------------------------ '''
 
 listeEleves = []
+# Cas 1 : on travaille sur un fichier .csv fourni.
 try:
     res = parseCSV(sys.argv[1])
     matrice = res[0]
     listeEleves = res[1]
     nbEleve = len(listeEleves)
     matrice = convertToInt(matrice)
+# Cas 2 : on demande un nombre d'élèves et on génère une matrice de préférences aléatoires.
 except IndexError:
     print "Nombre d'eleves : "
     nbEleve = input()
@@ -348,14 +354,15 @@ nbThread = 0
 tFini = 0
 stopPrinter = False
 repartition = []
-mentionsClassee = [[5,5],[5,4],[4,4],[5,3],[4,3],[3,3],[5,2]]
+mentionsClassee = [[5,5],[5,4],[4,4],[5,3],[4,3],[3,3],[5,2],[4,2],[3,2],[2,2],
+[5,1],[4,1],[3,1],[2,1],[1,1],[5,0],[4,0],[3,0],[2,0],[1,0],[0,0]]
 level = 0
 end = False
 repartTrouvee = False
 nbBinomesNeeded = 0
 nbTrinomeNeeded = 0
 
-# Détermination nb binomes et nb trinomes
+# Détermination du nb de binomes et nb de trinomes
 if nbEleve > 35:
     nbTrinomeNeeded = nbEleve - 36
     nbBinomesNeeded = 54 - nbEleve
@@ -366,7 +373,7 @@ else:
     else:
         nbBinomesNeeded = nbEleve / 2
 
-
+# Print des informations générales avant lancement de l'algo
 print 'Matrice des préférences :'
 for i in range(nbEleve):
     for j in range(nbEleve):
@@ -376,22 +383,25 @@ for i in range(nbEleve):
         else:
             print '  ',
     print
-
 print "Nombre de binomes recherché : ",nbBinomesNeeded
 print "Nombre de trinomes recherché : ",nbTrinomeNeeded,"\n"
 
+
 while not(end) and not(repartTrouvee):
 
+    # Choix des binômes au-dessus du seuil courant.
     ajoutBinome(mentionsClassee[level][0],mentionsClassee[level][1],matrice,binomes,listOccurencesElevesBinomes)
 
     print "________________________________________________\n"
     print "Seuil de mentions courant : ", level
     print "Nombre de binomes retenu : ",len(binomes)
 
-    if checkRepartition(binomes,nbEleve):
+    if checkRepartitionPossible(binomes,nbEleve):
         #print sortListGroupByOccEleves(binomes,listOccurencesElevesBinomes,nbEleve)
         #print "____________________"
         #print sortListGroupByOccEleves(trinomes,listOccurencesElevesTrinomes,nbEleve)
+
+        # Si on n'a pas besoin de trinômes, on va chercher les binômes critiques.
         if nbTrinomeNeeded == 0:
             print "Nb d'occurrences de chaque élève dans les binomes retenus : ", listOccurencesElevesBinomes
 
@@ -413,16 +423,18 @@ while not(end) and not(repartTrouvee):
             print "Binome(s) critique(s) : " , binomesCritiques
 
             repartitionTrinomes = []
+            t = []
 
             temps = time.time()
-            #combinaisonBis(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionTrinomes,repartitionTotal)
-            t = []
-            for binomesCritique in binomesCritiques:
-                validBinomes = deleteElevesFromGroups(binomes,[binomesCritique])
+
+            # Pour chaque binôme critique, on supprime ces binômes critiques de binomes.
+            for binomeCritique in binomesCritiques:
+                validBinomes = deleteElevesFromGroups(binomes,[binomeCritique])
                 if validBinomes >= nbBinomesNeeded:
+                    # On va tester toutes les combinaisons possibles avec chaque binome critique.
                     for x in range(0,(len(validBinomes)-nbBinomesNeeded+1)):
                         nbThread = nbThread + 1
-                        tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,validBinomes,[x,x],[binomesCritique],1,repartitionTotal)
+                        tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,validBinomes,[x,x],[binomeCritique],1,repartitionTotal)
                         t.append(tmp)
                         tmp.start()
 
@@ -438,6 +450,7 @@ while not(end) and not(repartTrouvee):
             if len(repartitionTotal) > 0:
                 repartTrouvee = True
 
+        # On a besoin de trinômes.
         else:
             trinomes = getAvailableTrinomes(binomes,listOccurencesElevesTrinomes)
 
@@ -445,85 +458,85 @@ while not(end) and not(repartTrouvee):
             for x in xrange(0,nbEleve):
                 listIndexes.append(x)
 
+            noEleveCritInTrin = False
             try:
                 indexesCriticalTrinomes = [i for i, x in enumerate(listOccurencesElevesTrinomes) if x == 0]
+                mostCriticalEleves = indexesCriticalTrinomes[0]
             except IndexError:
-                print "Pas de d'eleves manquant trinomes"
+                print "Tous les élèves apparaissent au moins dans un trinôme."
+                noEleveCritInTrin = True
 
-            mostCriticalEleves = indexesCriticalTrinomes[0]
+            if not(noEleveCritInTrin):
 
-            for indexe in indexesCriticalTrinomes:
-                if listOccurencesElevesBinomes[indexe] < listOccurencesElevesBinomes[mostCriticalEleves]:
-                    mostCriticalEleves = indexe
+                for index in indexesCriticalTrinomes:
+                    if listOccurencesElevesBinomes[index] < listOccurencesElevesBinomes[mostCriticalEleves]:
+                        mostCriticalEleves = index
 
-            print "Most critical eleves : ", mostCriticalEleves
+                print "Elèves les plus critiques : ", mostCriticalEleves
 
-            binomesCritiques = []
+                binomesCritiques = []
 
-            for binome in binomes:
-                for eleveDuBin in binome:
-                    if eleveDuBin == mostCriticalEleves:
-                        binomesCritiques.append(binome)
+                for binome in binomes:
+                    for eleveDuBin in binome:
+                        if eleveDuBin == mostCriticalEleves:
+                            binomesCritiques.append(binome)
 
-            print "Les binomes critiques : ", binomesCritiques
+                print "Les binomes critiques : ", binomesCritiques
 
-            repartitionBinomes = []
+                repartitionBinomes = []
 
-            temps = time.time()
-            #combinaisonBis(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionTrinomes,repartitionTotal)
-            t = []
-            for binomesCritique in binomesCritiques:
-                validBinomes = deleteElevesFromGroups(binomes,[binomesCritique])
-                if validBinomes >= nbBinomesNeeded:
-                    if nbBinomesNeeded != 1:
-                        for x in range(0,(len(validBinomes)-nbBinomesNeeded+1)):
-                            nbThread = nbThread + 1
-                            tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,validBinomes,[x,x],[binomesCritique],1,repartitionBinomes)
-                            t.append(tmp)
-                            tmp.start()
+                temps = time.time()
+                t = []
+                for binomesCritique in binomesCritiques:
+                    validBinomes = deleteElevesFromGroups(binomes,[binomesCritique])
+                    if validBinomes >= nbBinomesNeeded:
+                        if nbBinomesNeeded != 1:
+                            for x in range(0,(len(validBinomes)-nbBinomesNeeded+1)):
+                                nbThread = nbThread + 1
+                                tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,validBinomes,[x,x],[binomesCritique],1,repartitionBinomes)
+                                t.append(tmp)
+                                tmp.start()
 
-            for value in t:
-                value.join()
+                for value in t:
+                    value.join()
 
-            temps = time.time() - temps
+                temps = time.time() - temps
 
-            toPrint = ("%d repartition de binomes trouvé ! " % (len(repartitionBinomes)))
-            Printer(toPrint)
-            """
-            for repartition in repartitionBinomes:
-                print repartition
-            """
+                toPrint = ("%d repartition de binomes trouvée ! " % (len(repartitionBinomes)))
+                Printer(toPrint)
 
-            if len(repartitionBinomes) != 0:
-                repartitionTotal = []
-                if nbTrinomeNeeded == 1:
-                    print "A faire : ", len(repartitionBinomes)
-                    for ind in range(0,len(repartitionBinomes)):
-                        repartition = repartitionBinomes[ind]
-                        #toPrint = ("Restant : %d/%d" % (ind,len(repartitionBinomes)))
-                        #Printer(toPrint)
+                if len(repartitionBinomes) != 0:
+                    repartitionTotal = []
+                    if nbTrinomeNeeded == 1:
+                        print "A faire : ", len(repartitionBinomes)
+                        for ind in range(0,len(repartitionBinomes)):
+                            repartition = repartitionBinomes[ind]
+                            #toPrint = ("Restant : %d/%d" % (ind,len(repartitionBinomes)))
+                            #Printer(toPrint)
+                            validTrinomes = deleteElevesFromGroups(trinomes,repartition)
+                            if len(validTrinomes) >= nbTrinomeNeeded:
+                                for trinome in validTrinomes:
+                                    if not(sontBloquants(repartition,trinome)):
+                                        repartitionTotal.append(repartition+[trinome])
+                    else:
+                        t = []
                         validTrinomes = deleteElevesFromGroups(trinomes,repartition)
                         if len(validTrinomes) >= nbTrinomeNeeded:
-                            for trinome in validTrinomes:
-                                if not(sontBloquants(repartition,trinome)):
-                                    repartitionTotal.append(repartition+[trinome])
-                else:
-                    t = []
-                    validTrinomes = deleteElevesFromGroups(trinomes,repartition)
-                    if len(validTrinomes) >= nbTrinomeNeeded:
-                        for x in range(0,(len(validTrinomes)-nbTrinomeNeeded+1)):
-                            nbThread = nbThread + 1
-                            tmp = combinaisonT(nbEleve,nbThread-1,nbTrinomeNeeded,validTrinomes,[x,x],[],1,repartitionBinomes,repartitionTotal)
-                            t.append(tmp)
-                            tmp.start()
+                            for x in range(0,(len(validTrinomes)-nbTrinomeNeeded+1)):
+                                nbThread = nbThread + 1
+                                tmp = combinaisonT(nbEleve,nbThread-1,nbTrinomeNeeded,validTrinomes,[x,x],[],1,repartitionBinomes,repartitionTotal)
+                                t.append(tmp)
+                                tmp.start()
 
-                    for value in t:
-                        value.join()
+                        for value in t:
+                            value.join()
 
-                if len(repartitionTotal) != 0:
-                    repartTrouvee = True
-                    for reparti in repartitionTotal:
-                        print "\nRepartition possible : ", reparti
+                    if len(repartitionTotal) != 0:
+                        repartTrouvee = True
+                        for reparti in repartitionTotal:
+                            print "\nRepartition possible : ", reparti
+            else:
+                print '\n!!!!!!! Erreur : l\'algo ne gère pas ce cas encore. !!!!!!!\n'
 
     else:
         print "Il manque un élève !"
@@ -535,7 +548,7 @@ while not(end) and not(repartTrouvee):
     else:
         end = True
 
-    # end while
+    # end while (répart trouvée)
 print("------------------------------------------------")
 if(repartTrouvee):
     # On cherche désormais la meilleure répartition parmi celles possibles
