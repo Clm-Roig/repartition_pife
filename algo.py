@@ -422,37 +422,60 @@ while not(end) and not(repartTrouvee):
             for binome in binomes:
                 for eleveDuBin in binome:
                     if eleveDuBin in listeElevesCritiques:
-                        binomesCritiques.append(binome)
+                        if binome not in binomesCritiques:
+                            binomesCritiques.append(binome)
 
-            print "Binome(s) critique(s) : " , binomesCritiques
-
+            print len(binomesCritiques),"Binome(s) critique(s) : " , binomesCritiques
+            print "Eleve critiques : ",listeElevesCritiques
             # On vérifie d'abord si les binômes critiques sont bloquants ou pas.
-            if(min(listOccurencesElevesBinomes) == 1 and checkRepartitionPossible(binomesCritiques,len(binomesCritiques)*2)):
+            if listeElevesCritiques > 1:
+                if(min(listOccurencesElevesBinomes) == 1):
+                    if checkRepartitionPossible(binomesCritiques,len(listeElevesCritiques)*2):
+                        repartitionTrinomes = []
+                        t = []
 
-                repartitionTrinomes = []
-                t = []
+                        temps = time.time()
 
-                temps = time.time()
+                        validBinomes = deleteElevesFromGroups(binomes,binomesCritiques)
+                        if validBinomes >= nbBinomesNeeded:
+                            # On va tester toutes les combinaisons possibles avec chaque binome critique.
+                            for x in range(0,(len(validBinomes)-nbBinomesNeeded+1)):
+                                nbThread = nbThread + 1
+                                tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,validBinomes,[x,x],binomesCritiques,len(binomesCritiques),repartitionTotal)
+                                t.append(tmp)
+                                tmp.start()
 
-                validBinomes = deleteElevesFromGroups(binomes,binomesCritiques)
-                if validBinomes >= nbBinomesNeeded:
-                    # On va tester toutes les combinaisons possibles avec chaque binome critique.
-                    for x in range(0,(len(validBinomes)-nbBinomesNeeded+1)):
-                        nbThread = nbThread + 1
-                        tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,validBinomes,[x,x],[binomesCritiques],len(binomesCritiques),repartitionTotal)
-                        t.append(tmp)
-                        tmp.start()
+                        for value in t:
+                            value.join()
 
-                for value in t:
-                    value.join()
+                        temps = time.time() - temps
 
-                temps = time.time() - temps
+                        toPrint = "%d répartition(s) trouvée(s) pour les binomes en : %fs\n" % (len(repartitionTotal),temps)
+                        Printer(toPrint)
 
-                toPrint = "%d répartition(s) trouvée(s) pour les binomes en : %fs\n" % (len(repartitionTotal),temps)
-                Printer(toPrint)
+                        if len(repartitionTotal) > 0:
+                            repartTrouvee = True
+                            print repartitionTotal
+                    else:
+                        "Pas de repartition possibles car les eleves critique ne peuvent etre associés dans des binomes distinct !"
+                else:
 
-                if len(repartitionTotal) > 0:
-                    repartTrouvee = True
+                    repartitionBinomesCritique = []
+                    temps = time.time()
+                    print "borne sup ", len(binomesCritiques)-len(listeElevesCritiques)*2+1
+
+                    combinaison(len(listeElevesCritiques),binomesCritiques,[0,len(binomesCritiques)-len(listeElevesCritiques)*2+1],[],0,repartitionBinomesCritique)
+
+
+                    temps = time.time() - temps
+
+                    toPrint = "%d répartition(s) trouvée(s) pour les binomes critique en : %fs\n" % (len(repartitionBinomesCritique),temps)
+                    Printer(toPrint)
+                    print repartitionBinomesCritique
+                    print "CAS PAS GERER, OCCURENCES MIN != 1 ->", min(listOccurencesElevesBinomes)
+                    sys.exit(0)
+            else:
+                print "Un seul eleves critique, on voit toutes les combinaison avec cet eleves au debut"
 
         # On a besoin de trinômes.
         else:
