@@ -547,10 +547,10 @@ if(repartTrouvee):
         for groupe in repart:
             # Binome
             if(len(groupe) == 2):
-                valeurRepart = matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
+                valeurRepart += matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
             # Trinome
             else:
-                valeurRepart = matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
+                valeurRepart += matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
                 valeurRepart += matrice[groupe[0]][groupe[2]] + matrice[groupe[2]][groupe[0]]
                 valeurRepart += matrice[groupe[1]][groupe[2]] + matrice[groupe[2]][groupe[1]]
 
