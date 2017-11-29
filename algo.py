@@ -426,11 +426,8 @@ while not(end) and not(repartTrouvee):
     print "________________________________________________\n"
     print "Seuil de mentions courant : ", level
     print "Nombre de binomes retenu : ",len(binomes)
-    print "Occurences eleves binomes : ", listOccurencesElevesBinomes
+    print "Occurrences eleves binomes : ", listOccurencesElevesBinomes
     listeElevesCritiques = [i for i, x in enumerate(listOccurencesElevesBinomes) if x == 0]
-
-    for ele in listeElevesCritiques:
-        print listeEleves[ele]
 
     if checkRepartitionPossible(binomes,nbEleve):
         #print sortListGroupByOccEleves(binomes,listOccurencesElevesBinomes,nbEleve)
@@ -512,7 +509,7 @@ while not(end) and not(repartTrouvee):
                         validBinomes = deleteElevesFromGroups(binomes,repartitionCritique)
                         nbBinomesRestantNeeded = nbBinomesNeeded - len(repartitionCritique)
                         if len(validBinomes) >= nbBinomesRestantNeeded:
-                            toPrint = "Checking for : %s -> %d/%d\n" %(repartitionCritique,idx,len(repartitionBinomesCritique))
+                            toPrint = "Checking for : %s -> %d/%d\n" %(repartitionCritique,idx,len(repartitionBinomesCritique)-1)
                             Printer(toPrint)
                             repartitionBinomesNonCrit = []
                             #combinaison(nbBinomesRestantNeeded,validBinomes,[0,len(validBinomes)-nbBinomesRestantNeeded],[],0,repartitionBinomesNonCrit)
@@ -647,14 +644,13 @@ while not(end) and not(repartTrouvee):
                 repartitionTotal.remove(repartition)
         if len(repartitionTotal) != 0:
             repartTrouvee = True
-            print "\nDes repartitions ont été trouvées ! "
-            for reparti in repartitionTotal:
-                print "Repartition possible : ", reparti
+            print "\n________________________________________________"
+            print "\nDes répartitions ont été trouvées ! "
     level += 1
     if level == len(mentionsClassee):
         end = True
     if not(repartTrouvee):
-        print "\nPas de repartition trouvée !"
+        print "\nPas de Répartition trouvée !"
     else:
         end = True
 
