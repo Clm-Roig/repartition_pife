@@ -463,7 +463,7 @@ while not(end) and not(repartTrouvee):
                             binomesCritiques.append(binome)
 
             print len(binomesCritiques),"Binome(s) critique(s) : " , binomesCritiques
-            print "Eleve critiques : ",listeElevesCritiques
+            print "Eleve(s) critique(s) : ",listeElevesCritiques
             # On vérifie d'abord si les binômes critiques sont bloquants ou pas.
             if(min(listOccurencesElevesBinomes) == 1):
                 if checkRepartitionPossible(binomesCritiques,len(listeElevesCritiques)*2):
@@ -492,7 +492,7 @@ while not(end) and not(repartTrouvee):
                             if checkRepartitionPossible(repartNonCrit+binomesCritiques,nbBinomesNeeded*2):
                                 repartitionTotalBinomes.append(repartNonCrit+binomesCritiques)
                 else:
-                    "Pas de repartition possibles car les eleves critique ne peuvent etre associés dans des binomes distinct !"
+                    "Pas de repartition possibles car les élèves critiques ne peuvent être associés dans des binomes distincts !"
             else:
 
                 repartitionBinomesCritique = []
@@ -533,9 +533,9 @@ while not(end) and not(repartTrouvee):
                                     if checkRepartitionPossible(repartNonCrit+repartitionCritique,nbBinomesNeeded*2):
                                         repartitionTotalBinomes.append(repartNonCrit+repartitionCritique)
                         else:
-                            print "Peut pas repartir les binomes critiques"
+                            print "Ne peut pas repartir les binômes critiques."
                 else:
-                    "Pas de repartition car on n'as pas pu mettre les eleves critiques ensemble"
+                    "Pas de repartition car on n'as pas pu mettre les élèves critiques ensemble."
             if len(repartitionTotalBinomes) > 0:
                 if nbTrinomeNeeded != 0:
                     trinomes = getAvailableTrinomes(binomes,listOccurencesElevesTrinomes)
@@ -574,17 +574,17 @@ while not(end) and not(repartTrouvee):
 
             print binomes
             print len(binomes), " binomes gardés ! "
-            print "Occurences des eleves dans binomes : ",listOccurencesElevesBinomes
+            print "Occurrences des élèves dans binomes : ",listOccurencesElevesBinomes
 
             trinomes = getAvailableTrinomes(binomes,listOccurencesElevesTrinomes)
 
             print len(trinomes), " trinomes gardés ! "
             print trinomes
-            print "Occurences des eleves dans trinomes : ",listOccurencesElevesTrinomes
+            print "Occurrences des élèves dans trinomes : ",listOccurencesElevesTrinomes
 
             listeElevesCritiques = [i for i, x in enumerate(listOccurencesElevesTrinomes) if x == 0]
 
-            print "Liste des eleves critiques : ", listeElevesCritiques
+            print "Liste des élève(s) critique(s) : ", listeElevesCritiques
 
             binomesCritiques = []
 
@@ -597,7 +597,7 @@ while not(end) and not(repartTrouvee):
                     if add:
                         binomesCritiques.append(binome)
 
-            print "Liste des binomes critiques : ", binomesCritiques
+            print "Liste des binome(s) critique(s) : ", binomesCritiques
 
             repartitionCritiques = []
 
@@ -636,7 +636,7 @@ while not(end) and not(repartTrouvee):
                         for repartitionTotalBinome in repartitionTotalBinomes:
                             print "Repartition binomes : ", repartitionTotalBinome
                 else:
-                    print "Pas de repartition non critique !"
+                    print "Pas de repartition non-critique !"
 
 
     else:
@@ -647,7 +647,7 @@ while not(end) and not(repartTrouvee):
                 repartitionTotal.remove(repartition)
         if len(repartitionTotal) != 0:
             repartTrouvee = True
-            print "\nDes repartition ont etaient trouvée ! "
+            print "\nDes repartitions ont été trouvées ! "
             for reparti in repartitionTotal:
                 print "Repartition possible : ", reparti
     level += 1
