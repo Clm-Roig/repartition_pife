@@ -45,6 +45,15 @@ def parseCSV(file, nbLignes):
     return matrice[1:matrice.shape[0],1:matrice.shape[0]],matrice[0][1:matrice.shape[0]]
 
 '''
+    Retourne la liste des nbEleves premiers élèves
+'''
+def getNames(file, nbEleves):
+    with open(file) as csvFile:
+        reader = csv.reader(csvFile)
+        field_names_list = reader.next()
+    return field_names_list[1:int(nbEleves)+1]
+
+'''
     Convertie une matrice de la forme :
             [[-1,B,AB]
              [TB,-1,AR]
@@ -374,10 +383,12 @@ def extractBinomesWithEleveAndMention(matrice,eleve,mention):
 ''' ------------------------------------------ '''
 
 listeEleves = []
+listeNoms = []
 # Cas 1 : algo.py nbEleves fichier.csv
 # => on veut lire les mentions des premiers nbEleves du fichier csv
 try:
     res = parseCSV(sys.argv[2], sys.argv[1])
+    listeNoms = getNames(sys.argv[2], sys.argv[1])
     matrice = res[0]
     listeEleves = res[1]
     nbEleve = len(listeEleves)
@@ -700,176 +711,9 @@ if(repartTrouvee):
     print
     print("La / les meilleure(s) répartition(s) (avec %d points) est / sont :" % valeurMeilleureRepart)
     for repart in meilleuresReparts:
-        print repart
-
-
-
-"""
-            if len(trinomes) >= nbTrinomeNeeded:
-                print "Nombre de trinomes retenu : ",len(trinomes)
-
-                print "Nb d'occurrences de chaque eleve dans binomes : ", listOccurencesElevesBinomes
-                print "Nb d'occurrences de chaque eleve dans trinomes : ", listOccurencesElevesTrinomes
-
-                combiTri = combin(len(trinomes),nbTrinomeNeeded)
-                combiBin = combin(len(binomes),nbBinomesNeeded)
-                print "Combinaison de trinomes : " , combiTri
-                print "Combinaison de binomes : " , combiBin
-                if combiTri <= combiBin:
-                    print "Nb de combinaison de trinomes inferieur au nb requis."
-                    repartitionTrinomes = []
-                    temps = time.time()
-                    combinaison(nbTrinomeNeeded,trinomes,[0,len(trinomes) - nbTrinomeNeeded],[],0,repartitionTrinomes)
-                    temps = time.time() - temps
-
-                    print "\n",len(repartitionTrinomes),"répartition(s) trouvée(s) pour les trinomes en : %fs" % temps
-
-                    if len(repartitionTrinomes) > 0:
-                        temps = time.time()
-                        #combinaisonBis(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionTrinomes,repartitionTotal)
-                        t = []
-                        for x in range(0,(len(binomes)-nbBinomesNeeded+1)):
-                            for y in range(x+1,(len(binomes)-nbBinomesNeeded+2)):
-                                nbThread = nbThread + 1
-                                tmp = combinaisonT(nbEleve,nbThread-1,nbBinomesNeeded,binomes,[y,y],[binomes[x]],1,repartitionTrinomes,repartitionTotal)
-                                t.append(tmp)
-                                tmp.start()
-
-                        for value in t:
-                            value.join()
-
-                        temps = time.time() - temps
-
-                        #print "\n",len(repartitionTotal)," répartition trouvé pour les trinomes et binomes en : ",temps
-                        toPrint = "%d répartition(s) trouvées(s) pour les trinomes et binomes en : %fs\n" % (len(repartitionTotal),temps)
-                        Printer(toPrint)
-                        if len(repartitionTotal) > 0:
-                            repartTrouvee = True
-                    else:
-                        print "Aucune répartition de trinomes trouvée !"
-                else:
-                    print "Nb de combinaisons de binome inferieur au nb requis."
-                    repartitionBinomes = []
-                    temps = time.time()
-                    combinaison(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionBinomes)
-                    temps = time.time() - temps
-
-                    print "\n",len(repartitionBinomes)," répartition(s) trouvée(s) pour les binomes en : ",temps,'s'
-
-                    if len(repartitionBinomes) > 0:
-                        temps = time.time()
-                        #combinaisonBis(nbBinomesNeeded,binomes,[0,len(binomes) - nbBinomesNeeded],[],0,repartitionTrinomes,repartitionTotal)
-                        t = []
-                        for x in range(0,(len(trinomes)-nbTrinomeNeeded+1)):
-                            for y in range(x+1,(len(trinomes)-nbTrinomeNeeded+2)):
-                                nbThread = nbThread + 1
-                                tmp = combinaisonT(nbEleve,nbThread-1,nbTrinomeNeeded,trinomes,[y,y],[trinomes[x]],1,repartitionBinomes,repartitionTotal)
-                                t.append(tmp)
-                                tmp.start()
-
-                        for value in t:
-                            value.join()
-
-                        temps = time.time() - temps
-
-                        #print "\n",len(repartitionTotal)," répartition trouvé pour les trinomes et binomes en : ",temps
-                        toPrint = "%d répartitions trouvées pour les trinomes et binomes en : %fs\n" % (len(repartitionTotal),temps)
-                        Printer(toPrint)
-                        if len(repartitionTotal) > 0:
-                            repartTrouvee = True
-                    else:
-                        print "Aucune repartition de trinomes trouvée !"
+        print ' ____________________________ '
+        for binome in repart:
+            if(listeNoms == []):
+                print binome
             else:
-                print "Pas assez de trinomes retenus."
-"""
-
-
-
-
-"""
-
-print "Nb d'occurrences de chaque élève dans les binomes retenus : ", listOccurencesElevesBinomes
-trinomes = getAvailableTrinomes(binomes,listOccurencesElevesTrinomes)
-print "Nb d'occurrences de chaque élève dans les trinomes retenus : ", listOccurencesElevesTrinomes
-print "Nb trinomes retenue : ", len(trinomes)
-listIndexes = []
-for x in xrange(0,nbEleve):
-    listIndexes.append(x)
-
-noEleveCritInTrin = False
-try:
-    indexesCriticalTrinomes = [i for i, x in enumerate(listOccurencesElevesTrinomes) if x == 0]
-    print "Eleves critiques classes : ", indexesCriticalTrinomes
-    mostCriticalEleves = indexesCriticalTrinomes[0]
-except IndexError:
-    print "Tous les élèves apparaissent au moins dans un trinôme."
-    noEleveCritInTrin = True
-
-if not(noEleveCritInTrin):
-
-    for index in indexesCriticalTrinomes:
-        if listOccurencesElevesBinomes[index] < listOccurencesElevesBinomes[mostCriticalEleves]:
-            mostCriticalEleves = index
-
-    print "Elèves les plus critiques : ", mostCriticalEleves
-
-    binomesCritiques = []
-
-    for binome in binomes:
-        for eleveDuBin in binome:
-            if eleveDuBin == mostCriticalEleves:
-                binomesCritiques.append(binome)
-
-    print "Les binomes critiques : ", binomesCritiques
-
-    repartitionBinomes = []
-
-    temps = time.time()
-    t = []
-    for binomesCritique in binomesCritiques:
-        validBinomes = deleteElevesFromGroups(binomes,[binomesCritique])
-        if validBinomes >= nbBinomesNeeded:
-            if nbBinomesNeeded != 1:
-                for x in range(0,(len(validBinomes)-nbBinomesNeeded+1)):
-                    nbThread = nbThread + 1
-                    tmp = combinaisonT2(nbEleve,nbThread-1,nbBinomesNeeded,validBinomes,[x,x],[binomesCritique],1,repartitionBinomes)
-                    t.append(tmp)
-                    tmp.start()
-
-    for value in t:
-        value.join()
-
-    temps = time.time() - temps
-
-    toPrint = ("%d repartition de binomes trouvée ! " % (len(repartitionBinomes)))
-    Printer(toPrint)
-
-    if len(repartitionBinomes) != 0:
-        repartitionTotal = []
-        if nbTrinomeNeeded == 1:
-            print "A faire : ", len(repartitionBinomes)
-            for ind in range(0,len(repartitionBinomes)):
-                repartition = repartitionBinomes[ind]
-                #toPrint = ("Restant : %d/%d" % (ind,len(repartitionBinomes)))
-                #Printer(toPrint)
-                validTrinomes = deleteElevesFromGroups(trinomes,repartition)
-                if len(validTrinomes) >= nbTrinomeNeeded:
-                    for trinome in validTrinomes:
-                        if not(sontBloquants(repartition,trinome)):
-                            repartitionTotal.append(repartition+[trinome])
-        else:
-            t = []
-            validTrinomes = deleteElevesFromGroups(trinomes,repartition)
-            if len(validTrinomes) >= nbTrinomeNeeded:
-                for x in range(0,(len(validTrinomes)-nbTrinomeNeeded+1)):
-                    nbThread = nbThread + 1
-                    tmp = combinaisonT(nbEleve,nbThread-1,nbTrinomeNeeded,validTrinomes,[x,x],[],1,repartitionBinomes,repartitionTotal)
-                    t.append(tmp)
-                    tmp.start()
-
-            for value in t:
-                value.join()
-
-else:
-    print '\n!!!!!!! Erreur : l\'algo ne gère pas ce cas encore. !!!!!!!\n'
-"""
+                print listeNoms[binome[0]], ";", listeNoms[binome[1]]
