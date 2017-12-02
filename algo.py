@@ -710,10 +710,20 @@ if(repartTrouvee):
 
     print
     print("La / les meilleure(s) répartition(s) (avec %d points) est / sont :" % valeurMeilleureRepart)
+    i = 1
+    repartNoms = []
     for repart in meilleuresReparts:
         print ' ____________________________ '
         for binome in repart:
+            # Matrice Aléatoire => on affiche que les numéros
             if(listeNoms == []):
                 print binome
             else:
                 print listeNoms[binome[0]], ";", listeNoms[binome[1]]
+                repartNoms.append(listeNoms[binome[0]])
+                repartNoms.append(listeNoms[binome[1]])
+                repartNoms.append("\n")
+        nomFile = "Répartition " + str(i)
+        writeCsv(nomFile,[repartNoms])
+        i = i+1
+        repartNoms = []
