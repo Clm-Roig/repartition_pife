@@ -27,16 +27,20 @@ mentionsClassee = [[5,5],[5,4],[4,4],[5,3],[4,3],[3,3],[5,2],[4,2],[3,2],[2,2],
         ...
         A rejeter = AR
         Diagonale = -1
+    nbLignes = nombre de lignes que l'on souhaite lire depuis le CSV
     Renvoie une liste:
         Premier argument = matrice de preferences
         Second argument = liste des eleves
 '''
-def parseCSV(file):
+def parseCSV(file, nbLignes):
     tmp = []
     with open(file, 'rb') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         for row in spamreader:
             tmp.append(','.join(row).split(','))
+            nbLignes = int(nbLignes) - 1
+            if(nbLignes == -1):
+                break
     matrice = np.array(tmp)
     return matrice[1:matrice.shape[0],1:matrice.shape[0]],matrice[0][1:matrice.shape[0]]
 
@@ -362,17 +366,18 @@ def extractBinomesWithEleveAndMention(matrice,eleve,mention):
 ''' ------------------------------------------ '''
 
 listeEleves = []
-# Cas 1 : on travaille sur un fichier .csv fourni.
+# Cas 1 : algo.py nbEleves fichier.csv
+# => on veut lire les mentions des premiers nbEleves du fichier csv
 try:
-    res = parseCSV(sys.argv[1])
+    res = parseCSV(sys.argv[2], sys.argv[1])
     matrice = res[0]
     listeEleves = res[1]
     nbEleve = len(listeEleves)
     matrice = convertToInt(matrice)
-# Cas 2 : on demande un nombre d'élèves et on génère une matrice de préférences aléatoires.
+# Cas 1 : algo.py nbEleves
+# => on veut générer une matrice aléatoire de mentions avec nbEleves
 except IndexError:
-    print "Nombre d'eleves : "
-    nbEleve = input()
+    nbEleve = sys.argv[1]
     matrice = matriceAleatoire(nbEleve)
     for x in range(0,nbEleve):
         listeEleves.append(x)

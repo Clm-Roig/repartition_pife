@@ -1,0 +1,18 @@
+Nom,San-Wei Lee,Cyprien Legrand,Clement Loubiere,Hugo Maitre,Ophelie Piekarek,Cyril Pluche,Tristan Riviere,Clement Roig,Godefroi Roussel,Marion Rul,Maxime Soustelle,Mahe Spaenle,James Terrien,Romain Thevenon,Fabien Turgut,Megane Wintz,Loris Zirah
+San-Wei Lee,-1,AB,AB,AB,AB,AB,AB,AB,AB,AB,AB,AB,P,AB,AB,AB,B
+Cyprien Legrand,P,-1,P,B,AB,P,P,B,B,AB,AB,B,P,P,B,P,B
+Clement Loubiere,AB,AB,-1,AB,AB,AB,B,B,AB,AB,AB,AB,AB,AB,AB,AB,AB
+Hugo Maitre,AB,AB,P,-1,AB,AB,AB,B,B,AB,B,AB,AB,AB,B,P,TB
+Ophelie Piekarek,AR,TB,AR,B,-1,AB,I,B,B,B,AB,P,B,P,AB,TB,B
+Cyril Pluche,AB,AB,I,AB,AB,-1,I,AB,AB,TB,AB,AB,TB,I,TB,I,B
+Tristan Riviere,AB,AB,TB,TB,B,P,-1,TB,AB,AB,B,AB,P,AB,B,B,B
+Clement Roig,I,I,AB,B,AB,I,I,-1,TB,I,AB,B,AB,AB,AB,I,TB
+Godefroi Roussel,P,AB,I,TB,B,AB,P,TB,-1,AB,AB,B,B,B,AB,P,B
+Marion Rul,P,P,P,P,TB,TB,P,P,P,-1,P,TB,TB,P,P,P,P
+Maxime Soustelle,B,B,B,TB,AB,AB,AB,B,B,B,-1,B,AB,B,AB,AB,B
+Mahe Spaenle,P,P,P,P,P,P,P,P,P,P,P,-1,P,P,P,P,AB
+James Terrien,P,P,I,AB,P,TB,I,P,B,TB,I,P,-1,AR,AB,I,AB
+Romain Thevenon,I,B,I,P,AB,AB,AR,B,B,B,AB,B,B,-1,AB,I,B
+Fabien Turgut,AB,TB,P,B,TB,B,P,P,B,AB,P,AB,B,B,-1,B,TB
+Megane Wintz,AR,AR,AR,AR,TB,AR,AR,AR,AR,AR,AR,AR,AR,AR,AR,-1,AR
+Loris Zirah,P,B,I,TB,AB,AB,P,B,B,AB,TB,AB,AB,AB,AB,P,-1
