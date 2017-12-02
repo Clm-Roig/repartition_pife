@@ -233,7 +233,7 @@ def getAvailableTrinomes(binomes,nbOccurences):
 
 '''
     nbEleves : nombre d'élèves considérés dans le group
-    group : 
+    group :
     ranges :
     repartition :
     i :
@@ -246,7 +246,7 @@ def combinaison(nbEleves,group,ranges,repartition,i,result):
             if i == nbEleves - 1:
                 result.append(list(repartition))
             else:
-                combinaison(k,group,[x+1 , i+1 + len(group) - k],repartition,len(repartition),result)
+                combinaison(nbEleves,group,[x+1 , i+1 + len(group) - nbEleves],repartition,len(repartition),result)
             if len(repartition) != 0:
                 repartition.pop()
     return True
@@ -255,7 +255,7 @@ def combinaisonBis(nbEleves,k,group,ranges,repartition,i,trinomes,result):
     for x in range(ranges[0],ranges[1]+1):
         if not(sontBloquants(repartition,group[x])):
             repartition.append(group[x])
-            if i == k - 1:
+            if i == nbEleves - 1:
                 if len(trinomes) != 0:
                     for t in trinomes:
                         if checkRepartitionPossible((t+repartition),nbEleves):
@@ -385,7 +385,7 @@ try:
 # Cas 1 : algo.py nbEleves
 # => on veut générer une matrice aléatoire de mentions avec nbEleves
 except IndexError:
-    nbEleve = sys.argv[1]
+    nbEleve = int(sys.argv[1])
     matrice = matriceAleatoire(nbEleve)
     for x in range(0,nbEleve):
         listeEleves.append(x)
