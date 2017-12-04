@@ -8,14 +8,13 @@ from threading import Thread
 import collections
 import sys
 import csv
-import comparaisonRepartitions as compR
 
 global repartition
 global tFini
 global nbThread
-global mentionsClassees
+global mentionsClassee
 
-mentionsClassees = [[5,5],[5,4],[4,4],[5,3],[4,3],[3,3],[5,2],[4,2],[3,2],[2,2],
+mentionsClassee = [[5,5],[5,4],[4,4],[5,3],[4,3],[3,3],[5,2],[4,2],[3,2],[2,2],
 [5,1],[4,1],[3,1],[2,1],[1,1],[5,0],[4,0],[3,0],[2,0],[1,0],[0,0],[-1,-1]]
 
 '''
@@ -359,7 +358,7 @@ def combin(n, k):
     return x
 
 def isBetter(mention,ment):
-    return mentionsClassees.index(mention) < mentionsClassees.index(ment)
+    return mentionsClassee.index(mention) < mentionsClassee.index(ment)
 
 def extractSortedMentions(matrice,eleve):
     listMentions = []
@@ -456,7 +455,7 @@ print "Nombre de trinomes recherché : ",nbTrinomeNeeded,"\n"
 while not(end) and not(repartTrouvee):
 
     # Choix des binômes au-dessus du seuil courant.
-    ajoutBinome(mentionsClassees[level][0],mentionsClassees[level][1],matrice,binomes,listOccurencesElevesBinomes)
+    ajoutBinome(mentionsClassee[level][0],mentionsClassee[level][1],matrice,binomes,listOccurencesElevesBinomes)
 
     print "________________________________________________\n"
     print "Seuil de mentions courant : ", level
@@ -599,7 +598,7 @@ while not(end) and not(repartTrouvee):
             trinomes = []
             repartitionTotalBinomes = []
 
-            while seuil != 10:
+            while seuil != 10 and not(repartTrouvee):
                 seuil = seuil + 1
 
                 print "Le seuil est a : ",seuil
@@ -716,7 +715,7 @@ while not(end) and not(repartTrouvee):
                                 for repart in repartition:
                                     if isRepartition(repart+repartitionTotalBinome,nbEleve):
                                         repartitionTotal.append(repart+repartitionTotalBinome)
-                                        print "REPARTITION TROUVEE"
+                                        repartTrouvee = True
 
                     else:
                         print "Pas de repartition non-critique !"
@@ -733,7 +732,7 @@ while not(end) and not(repartTrouvee):
             print "\n________________________________________________"
             print "\nDes répartitions ont été trouvées ! "
     level += 1
-    if level == len(mentionsClassees):
+    if level == len(mentionsClassee):
         end = True
     if not(repartTrouvee):
         print "\nPas de Répartition trouvée !"
@@ -745,13 +744,34 @@ print("------------------------------------------------")
 
 if(repartTrouvee):
     # On cherche désormais la meilleure répartition parmi celles possibles
-    # Méthode : assigner une valeur à chaque mentionsClassees et les additionner
-
+    # Méthode : assigner une valeur à chaque mentionsClassee et les additionner
     meilleuresReparts = []
-    meilleuresReparts = compR.meilleuresReparts(repartitionTotal, matrice)
+    valeurMeilleureRepart = 0
+    for repart in repartitionTotal:
+        valeurRepart = 0
+        for groupe in repart:
+            # Valeur du binome
+            if(len(groupe) == 2):
+                valeurRepart += matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
+            # Valeur du trinome
+            else:
+                valeurRepart += matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
+                valeurRepart += matrice[groupe[0]][groupe[2]] + matrice[groupe[2]][groupe[0]]
+                valeurRepart += matrice[groupe[1]][groupe[2]] + matrice[groupe[2]][groupe[1]]
+
+        print repart,
+        print "= %d points" %valeurRepart
+
+        # Stockage des reparts dans les meilleures
+        if valeurRepart > valeurMeilleureRepart:
+            valeurMeilleureRepart = valeurRepart
+            meilleuresReparts = []
+            meilleuresReparts.append(repart)
+        elif valeurRepart == valeurMeilleureRepart:
+            meilleuresReparts.append(repart)
 
     print
-    print("La / les meilleure(s) répartition(s) (avec %d points) est / sont :" % compR.pointsRepart(repartitionTotal[0], matrice))
+    print("La / les meilleure(s) répartition(s) (avec %d points) est / sont :" % valeurMeilleureRepart)
     i = 1
     repartNoms = []
     for repart in meilleuresReparts:
