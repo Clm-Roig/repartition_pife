@@ -8,6 +8,7 @@ from threading import Thread
 import collections
 import sys
 import csv
+import comparaisonRepartitions as compR
 
 global repartition
 global tFini
@@ -388,6 +389,22 @@ def extractBinomesWithEleveAndMention(matrice,eleve,mention):
             listBinomes.append([eleve,otherEleve])
     return listBinomes
 
+
+def printEcranAndCSV(repart, i):
+    repartNoms = []
+    print ' ____________________________ '
+    for group in repart:
+        groupNom = []
+        for eleve in group:
+            groupNom.append(listeNoms[eleve])
+        repartNoms.append(groupNom)
+    for groupe in repartNoms:
+        print groupe
+    nomFile = "Répartition " + str(i)
+
+    writeCsv(nomFile,[repartNoms])
+
+
 ''' ------------------------------------------ '''
 ''' --------------- DEBUT ALGO --------------- '''
 ''' ------------------------------------------ '''
@@ -731,6 +748,10 @@ while not(end) and not(repartTrouvee):
             repartTrouvee = True
             print "\n________________________________________________"
             print "\nDes répartitions ont été trouvées ! "
+
+            for repart in repartitionTotal:
+                print repart
+
     level += 1
     if level == len(mentionsClassee):
         end = True
@@ -744,46 +765,25 @@ print("------------------------------------------------")
 
 if(repartTrouvee):
     # On cherche désormais la meilleure répartition parmi celles possibles
-    # Méthode : assigner une valeur à chaque mentionsClassee et les additionner
-    meilleuresReparts = []
-    valeurMeilleureRepart = 0
-    for repart in repartitionTotal:
-        valeurRepart = 0
-        for groupe in repart:
-            # Valeur du binome
-            if(len(groupe) == 2):
-                valeurRepart += matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
-            # Valeur du trinome
-            else:
-                valeurRepart += matrice[groupe[0]][groupe[1]] + matrice[groupe[1]][groupe[0]]
-                valeurRepart += matrice[groupe[0]][groupe[2]] + matrice[groupe[2]][groupe[0]]
-                valeurRepart += matrice[groupe[1]][groupe[2]] + matrice[groupe[2]][groupe[1]]
+    # Méthode : assigner une valeur à chaque mentionsClassees et les additionner
 
-        print repart,
-        print "= %d points" %valeurRepart
+    meilleuresRepartsParPoints = []
+    meilleuresRepartsParPoints = compR.meilleuresRepartsParPoints(repartitionTotal, matrice)
 
-        # Stockage des reparts dans les meilleures
-        if valeurRepart > valeurMeilleureRepart:
-            valeurMeilleureRepart = valeurRepart
-            meilleuresReparts = []
-            meilleuresReparts.append(repart)
-        elif valeurRepart == valeurMeilleureRepart:
-            meilleuresReparts.append(repart)
-
-    print
-    print("La / les meilleure(s) répartition(s) (avec %d points) est / sont :" % valeurMeilleureRepart)
+    print("\nLa / les meilleure(s) répartition(s) (avec %d points) est / sont :" % compR.pointsRepart(meilleuresRepartsParPoints[0], matrice))
     i = 1
-    repartNoms = []
-    for repart in meilleuresReparts:
-        print ' ____________________________ '
-        for group in repart:
-            groupNom = []
-            for eleve in group:
-                groupNom.append(listeNoms[eleve])
-            repartNoms.append(groupNom)
-        for groupe in repartNoms:
-            print groupe
-        nomFile = "Répartition " + str(i)
-        writeCsv(nomFile,[repartNoms])
-        i = i+1
-        repartNoms = []
+    for repart in meilleuresRepartsParPoints:
+        printEcranAndCSV(repart,i)
+        i += 1
+
+
+    # La méthode suivante est très longue : elle compare toutes les répartitions 2 à 2 pour savoir
+    # laquelle en bat le plus.
+'''
+    meilleuresRepartsParComp = []
+    meilleuresRepartsParComp = compR.meilleuresRepartsParComp(repartitionTotal, matrice)
+
+    print("\nLa / les meilleure(s) répartition(s) par comparaison est / sont :")
+    for repart in meilleuresRepartsParComp:
+        printEcranAndCSV(repart)
+'''
