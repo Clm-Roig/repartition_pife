@@ -99,15 +99,20 @@ def convertToInt(matrice):
          [3,4,5],
          [6,7],
          [8,9,10]]
-    (Les chiffres representent les eleves)
+    (Les chiffres étant des élèves)
 '''
 def writeCsv(file,repartition):
     with open(file, 'wb') as csvfile:
-        spamwriter = csv.writer(csvfile, delimiter=',',
-                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        for x in xrange(0,len(repartition)):
-            repartition[x].insert(0,x+1)
-            spamwriter.writerow(repartition[x])
+        print repartition[0]
+        for group in repartition[0]:
+            firstEleve = True
+            for eleve in group:
+                if(not(firstEleve)):
+                    csvfile.write(',')
+                firstEleve = False
+                csvfile.write(eleve)
+            csvfile.write('\n')
+
 
 
 class Printer():
@@ -747,10 +752,7 @@ while not(end) and not(repartTrouvee):
         if len(repartitionTotal) != 0:
             repartTrouvee = True
             print "\n________________________________________________"
-            print "\nDes répartitions ont été trouvées ! "
-
-            for repart in repartitionTotal:
-                print repart
+            print "\n%d répartitions ont été trouvées ! " % len(repartitionTotal)
 
     level += 1
     if level == len(mentionsClassee):
