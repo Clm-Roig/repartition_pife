@@ -7,8 +7,10 @@ import random as random
 from threading import Thread
 import collections
 import sys
-import csv
 import comparaisonRepartitions as compR
+import shutil
+import os
+import csv
 
 global repartition
 global tFini
@@ -103,7 +105,6 @@ def convertToInt(matrice):
 '''
 def writeCsv(file,repartition):
     with open(file, 'wb') as csvfile:
-        print repartition[0]
         for group in repartition[0]:
             firstEleve = True
             for eleve in group:
@@ -141,7 +142,7 @@ class combinaisonT(Thread):
         tmp = combinaisonBis(self.nbEleves,self.k,self.group,self.ranges,self.repartition,self.i,self.trinomes,self.result)
         tFini = tFini + 1
         toPrint = "Thread n°%d fini. Nb Threads finis : %d/%d" % (self.id, tFini,nbThread)
-        Printer(toPrint)
+        #Printer(toPrint)
 
 class combinaisonT2(Thread):
 
@@ -163,7 +164,7 @@ class combinaisonT2(Thread):
         tmp = combinaison(self.k,self.group,self.ranges,self.repartition,self.i,self.result)
         tFini = tFini + 1
         toPrint = "Thread n°%d fini. Nb de Threads finis : %d/%d" % (self.id, tFini,nbThread)
-        Printer(toPrint)
+        #Printer(toPrint)
 
 def matriceAleatoire(size):
     matrice = np.random.rand(size,size)
@@ -276,6 +277,12 @@ def combinaison(nbEleves,group,ranges,repartition,i,result):
                 repartition.pop()
     return True
 
+
+'''
+    Pareil que combinaison() mais à la fin, regarde si la répartition trouvée
+    fonctionne avec celle en paramètre.
+'''
+
 def combinaisonBis(nbEleves,k,group,ranges,repartition,i,trinomes,result):
     for x in range(ranges[0],ranges[1]+1):
         if not(sontBloquants(repartition,group[x])):
@@ -293,18 +300,6 @@ def combinaisonBis(nbEleves,k,group,ranges,repartition,i,trinomes,result):
             if len(repartition) != 0:
                 repartition.pop()
     return True
-
-def threadedSearch(k,group):
-    t = []
-    result = []
-    for x in range(0,(len(group)-k+1)):
-        tmp = combinaisonT(x,k,group,[x,x],[],0,result)
-        t.append(tmp)
-        tmp.start()
-
-    for value in t:
-        value.join()
-    return result
 
 def extractGroupWith(group,eleve):
     res = []
@@ -405,7 +400,7 @@ def printEcranAndCSV(repart, i):
         repartNoms.append(groupNom)
     for groupe in repartNoms:
         print groupe
-    nomFile = "Répartition " + str(i)
+    nomFile = "repartitions/Répartition " + str(i)
 
     writeCsv(nomFile,[repartNoms])
 
@@ -414,8 +409,17 @@ def printEcranAndCSV(repart, i):
 ''' --------------- DEBUT ALGO --------------- '''
 ''' ------------------------------------------ '''
 
+try:
+    shutil.rmtree('repartitions')
+except:
+    print
+os.makedirs('repartitions')
+
+temps = time.time()
+
 listeEleves = []
 listeNoms = []
+executeOnCSV = True
 # Cas 1 : algo.py nbEleves fichier.csv
 # => on veut lire les mentions des premiers nbEleves du fichier csv
 try:
@@ -428,6 +432,7 @@ try:
 # Cas 1 : algo.py nbEleves
 # => on veut générer une matrice aléatoire de mentions avec nbEleves
 except IndexError:
+    executeOnCSV = False
     nbEleve = int(sys.argv[1])
     matrice = matriceAleatoire(nbEleve)
     for x in range(0,nbEleve):
@@ -556,7 +561,7 @@ while not(end) and not(repartTrouvee):
                 temps = time.time() - temps
 
                 toPrint = "%d répartition(s) trouvée(s) pour les binomes critique en : %fs\n" % (len(repartitionBinomesCritique),temps)
-                Printer(toPrint)
+                #Printer(toPrint)
 
                 if repartitionBinomesCritique > 0:
                     t = []
@@ -774,10 +779,18 @@ if(repartTrouvee):
 
     print("\nLa / les meilleure(s) répartition(s) (avec %d points) est / sont :" % compR.pointsRepart(meilleuresRepartsParPoints[0], matrice))
     i = 1
-    for repart in meilleuresRepartsParPoints:
-        printEcranAndCSV(repart,i)
-        i += 1
 
+    if(executeOnCSV):
+        for repart in meilleuresRepartsParPoints:
+            printEcranAndCSV(repart,i)
+            i += 1
+    else:
+        for repart in meilleuresRepartsParPoints:
+            print ' ____________________________ '
+            for group in repart:
+                print group
+
+print "\nTemps écoulé : %fs\n" % (time.time() - temps)
 
     # La méthode suivante est très longue : elle compare toutes les répartitions 2 à 2 pour savoir
     # laquelle en bat le plus.
@@ -786,6 +799,8 @@ if(repartTrouvee):
     meilleuresRepartsParComp = compR.meilleuresRepartsParComp(repartitionTotal, matrice)
 
     print("\nLa / les meilleure(s) répartition(s) par comparaison est / sont :")
+    i = 1
     for repart in meilleuresRepartsParComp:
-        printEcranAndCSV(repart)
+        printEcranAndCSV(repart, i)
 '''
+
