@@ -486,7 +486,7 @@ while not(end) and not(repartTrouvee):
 
     print "________________________________________________\n"
     print "Seuil de mentions courant : ", level
-    print "Nombre de binomes retenu : ",len(binomes)
+    #print "Nombre de binomes retenu : ",len(binomes)
     print "Occurrences eleves binomes : ", listOccurencesElevesBinomes
     listeElevesCritiques = [i for i, x in enumerate(listOccurencesElevesBinomes) if x == 0]
 
@@ -628,8 +628,6 @@ while not(end) and not(repartTrouvee):
             while seuil != 10 and not(repartTrouvee):
                 seuil = seuil + 1
 
-                print "Le seuil est a : ",seuil
-
                 if len(repartitionTotalBinomes) == 0:
                     if len(binomes) == 0:
                         for x in range(0,nbEleve):
@@ -652,14 +650,13 @@ while not(end) and not(repartTrouvee):
                                     binomes.append(sorted(binome,reverse=True))
                             listOccurencesElevesBinomes[x] = listOccurencesElevesBinomes[x] + len(dataEleves[x][1][y])
 
-                print binomes
+                print
                 print len(binomes), " binomes gardés ! "
                 print "Occurrences des élèves dans binomes : ",listOccurencesElevesBinomes
 
                 trinomes = getAvailableTrinomes(binomes,listOccurencesElevesTrinomes)
 
                 print len(trinomes), " trinomes gardés ! "
-                print trinomes
                 print "Occurrences des élèves dans trinomes : ",listOccurencesElevesTrinomes
                 if len(repartitionTotalBinomes) == 0:
                     listeElevesCritiques = [i for i, x in enumerate(listOccurencesElevesTrinomes) if x == 0]
@@ -709,7 +706,6 @@ while not(end) and not(repartTrouvee):
                         if len(repartitionBinomesNonCrit) > 0:
                             for repartNonCrit in repartitionBinomesNonCrit:
                                 for repartitionCritique in repartitionCritiques:
-                                    print repartNonCrit,repartitionCritique, isRepartition(repartNonCrit+repartitionCritique,nbBinomesNeeded*2)
                                     if isRepartition(repartNonCrit+repartitionCritique,nbBinomesNeeded*2):
                                         repartitionTotalBinomes.append(repartNonCrit+repartitionCritique)
 
