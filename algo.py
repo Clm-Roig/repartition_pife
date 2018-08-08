@@ -801,15 +801,3 @@ if(repartTrouvee):
                 print group
 
 print "\nTemps écoulé : %fs\n" % (time.time() - temps)
-
-    # La méthode suivante est très longue : elle compare toutes les répartitions 2 à 2 pour savoir
-    # laquelle en bat le plus.
-'''
-    meilleuresRepartsParComp = []
-    meilleuresRepartsParComp = compR.meilleuresRepartsParComp(repartitionTotal, matrice)
-
-    print("\nLa / les meilleure(s) répartition(s) par comparaison est / sont :")
-    i = 1
-    for repart in meilleuresRepartsParComp:
-        printEcranAndCSV(repart, i)
-'''
