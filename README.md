@@ -1,8 +1,6 @@
 # Algo de répartition des PIFE
 ## AURARD - GIORDANI - ROIG
 
-/!\ Attention : notre algo ne fonctionne pas sur les préférences de la promotion (trop gourmand en RAM => fait crasher le PC) /!\
-
 Pour exécuter ce programme, 2 possibilités s'offre à vous :
 
 > python algo.py XX
